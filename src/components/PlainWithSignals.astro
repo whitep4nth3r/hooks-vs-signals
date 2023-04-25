@@ -1,0 +1,62 @@
+<script>
+  import { Chord } from "tonal";
+  import { createSignal, createEffect } from "solid-js";
+
+  function doChordThing(note) {
+    // this runs every time you click the clicker button
+    // without useMemo to control state variable updates
+    console.log("DOING PLAIN WITH SIGNALS CHORD THING");
+    return Chord.getChord("maj", note, note);
+  }
+
+  const notes = ["A", "B", "C", "D", "E", "F", "G"];
+  const noteHolder = document.querySelector("[data-notes-plain]");
+  const chordHolder = document.querySelector("[data-chord-plain]");
+
+  const [getCurrentNote, setCurrentNote] = createSignal("A");
+  const getCurrentChord = () => doChordThing(getCurrentNote());
+
+  // will always run at least once
+  // and then subscribe to any signals inside it
+  // no need for deps array
+  // first time createEffect runs, it will look for deps automatically
+  // e.g. it sees getCurrentChord in renderChord and subscribes
+
+  createEffect(() => {
+    renderChord();
+  });
+
+  // if you don't want too much magic, you CAN use "on" to
+  // directly specify the dependecies you want createEffect
+  // to react to
+  // createEffect(
+  //   on(getCurrentNote, () => {
+  //     renderChord();
+  //   }),
+  // );
+
+  function noteClickHandler(root) {
+    setCurrentNote(root);
+    // renderChord(); we don't want to have to remember to call more than once thing here at once, so we add a createEffect instead
+  }
+
+  function renderChord() {
+    chordHolder.innerHTML = getCurrentChord()
+      .notes.map((note) => note)
+      .join("");
+  }
+
+  function generateNotesInDom() {
+    notes.forEach((note) => {
+      const el = document.createElement("button");
+      el.innerText = note;
+      el.addEventListener("click", () => noteClickHandler(note));
+      noteHolder.appendChild(el);
+    });
+  }
+
+  generateNotesInDom();
+</script>
+
+<section data-notes-plain></section>
+<section data-chord-plain></section>

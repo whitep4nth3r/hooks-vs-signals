@@ -1,0 +1,50 @@
+<script>
+  import { Chord } from "tonal";
+
+  function doChordThing(note) {
+    // this runs every time you click the clicker button
+    // without useMemo to control state variable updates
+    console.log("DOING PLAIN CHORD THING");
+    return Chord.getChord("maj", note, note);
+  }
+
+  const notes = ["A", "B", "C", "D", "E", "F", "G"];
+
+  let currentNote = "A";
+  let currentChord = [];
+
+  const noteHolder = document.querySelector("[data-notes]");
+  const chordHolder = document.querySelector("[data-chord]");
+
+  function noteClickHandler(root) {
+    currentNote = root;
+    console.log("current note is ", currentNote);
+    renderChord(root);
+  }
+
+  function renderChord(root) {
+    currentChord = doChordThing(root).notes;
+    chordHolder.innerHTML = currentChord.map((note) => note).join("");
+  }
+
+  function generateNotesInDom() {
+    notes.forEach((note) => {
+      const el = document.createElement("button");
+      el.innerText = note;
+      el.addEventListener("click", () => noteClickHandler(note));
+      noteHolder.appendChild(el);
+    });
+  }
+
+  generateNotesInDom();
+  renderChord(currentNote);
+</script>
+
+<section data-notes></section>
+<section data-chord></section>
+
+<!-- <button onClick={setClicksHandler}>CLICKED {clicks} TIMES</button> -->
+
+<!-- <section>
+  {chord.notes.map((note, index) => <span key={`chord-note-${index}`}>{note}</span>)}
+</section> -->
